@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <!-- Billete inferior (inclinado a la izquierda) -->
+    <g transform="rotate(-8 32 32)">
+      <rect x="8" y="20" width="48" height="26" rx="3" fill="#094420" stroke="#b8860b" stroke-width="1.5"/>
+      <rect x="11" y="23" width="42" height="20" rx="1.5" fill="none" stroke="#d4a843" stroke-width="0.75" stroke-dasharray="3,1"/>
+    </g>
+
+    <!-- Billete medio (inclinado a la derecha) -->
+    <g transform="rotate(6 32 32)">
+      <rect x="8" y="19" width="48" height="26" rx="3" fill="#0b5428" stroke="#b8860b" stroke-width="1.5"/>
+      <rect x="11" y="22" width="42" height="20" rx="1.5" fill="none" stroke="#d4a843" stroke-width="0.75" stroke-dasharray="3,1"/>
+    </g>
+
+    <!-- Billete superior (alineado, primer plano) -->
+    <g transform="rotate(-1 32 32)">
+      <rect x="8" y="18" width="48" height="26" rx="3" fill="#0d6b35" stroke="#d4a843" stroke-width="1.5"/>
+      <rect x="11" y="21" width="42" height="20" rx="1.5" fill="none" stroke="#f4d95e" stroke-width="0.75" stroke-dasharray="3,1"/>
+      
+      <!-- Detalles clásicos en esquinas -->
+      <circle cx="13" cy="23" r="1.2" fill="#f4d95e"/>
+      <circle cx="51" cy="23" r="1.2" fill="#f4d95e"/>
+      <circle cx="13" cy="39" r="1.2" fill="#f4d95e"/>
+      <circle cx="51" cy="39" r="1.2" fill="#f4d95e"/>
+
+      <!-- Sello / Círculo central -->
+      <circle cx="32" cy="31" r="7.5" fill="#0a5a2d" stroke="#f4d95e" stroke-width="1"/>
+      <text x="32" y="34.8" font-family="'Outfit', sans-serif" font-size="11" font-weight="900" fill="#f4d95e" text-anchor="middle">$</text>
+    </g>
+
+    <!-- Faja / Banda de sujeción (Abrazadera del fajo) -->
+    <g transform="rotate(-1 32 32)">
+      <rect x="25" y="17.25" width="14" height="27.5" fill="#12121f" stroke="#d4a843" stroke-width="1"/>
+      <!-- Brillo / Bordes de la faja -->
+      <line x1="27" y1="18" x2="27" y2="44" stroke="#f4d95e" stroke-width="0.5" opacity="0.6"/>
+      <line x1="37" y1="18" x2="37" y2="44" stroke="#f4d95e" stroke-width="0.5" opacity="0.6"/>
+      <!-- Emblema de la faja -->
+      <circle cx="32" cy="31" r="2.5" fill="#d4a843"/>
+    </g>
+  </g>
+</svg>
