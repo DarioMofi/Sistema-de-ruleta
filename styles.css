@@ -88,7 +88,7 @@ header h1 {
 /* ===== LAYOUT ===== */
 main {
   display: grid;
-  grid-template-columns: 360px 1fr 680px;
+  grid-template-columns: minmax(300px, 360px) 1fr minmax(320px, 680px);
   gap: 28px;
   padding: 28px 32px;
   max-width: 1700px;
@@ -292,6 +292,8 @@ main {
   overflow-y: auto;
   position: sticky;
   top: 28px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .sidebar::-webkit-scrollbar { width: 5px; }
@@ -425,6 +427,8 @@ main {
   border-radius: 12px;
   border: 1px solid var(--glass-border);
   background: rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 100%;
 }
 
 .trend-table-wrapper::-webkit-scrollbar {

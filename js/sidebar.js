@@ -22,9 +22,9 @@ export class Sidebar {
         <div class="legend">
           <span class="legend-title">#0-#9: Algoritmos</span>
           <div class="legend-dots">
-            <span class="legend-item"><span class="legend-dot base"></span>B (Base)</span>
-            <span class="legend-item"><span class="legend-dot hueco"></span>H (Hueco)</span>
-            <span class="legend-item"><span class="legend-dot extension"></span>E (Extensión)</span>
+            <span class="legend-item"><span class="legend-dot base"></span>Base</span>
+            <span class="legend-item"><span class="legend-dot hueco"></span>Hueco</span>
+            <span class="legend-item"><span class="legend-dot extension"></span>Extensión</span>
           </div>
         </div>
       </div>
@@ -117,19 +117,15 @@ export class Sidebar {
         const match = algos.find(a => a.id === algoId);
         if (!match) return `<td class="trend-cell empty">-</td>`;
         
-        let letter = '';
         let cellCls = '';
         if (match.type === 'base') {
-          letter = 'B';
           cellCls = 'base';
         } else if (match.type === 'hueco') {
-          letter = 'H';
           cellCls = 'hueco';
         } else if (match.type === 'extension') {
-          letter = 'E';
           cellCls = 'extension';
         }
-        return `<td class="trend-cell matched ${cellCls}" title="${match.name}: ${match.type.toUpperCase()}">${letter}</td>`;
+        return `<td class="trend-cell matched ${cellCls}" title="${match.name}: ${match.type.toUpperCase()}">${algoId}</td>`;
       }).join('');
 
       return `
