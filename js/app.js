@@ -20,7 +20,8 @@ class App {
     this.sidebar = new Sidebar(
       sidebarEl,
       () => this.table.clearSelection(),
-      (algoId) => this.algosModal.open(algoId)
+      (algoId) => this.algosModal.open(algoId),
+      (index) => this.table.deleteIndex(index)
     );
 
     this.capital = new CapitalTable(capitalEl);

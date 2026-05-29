@@ -1,18 +1,13 @@
 import { getNumberColor, getNeighbors, findAlgorithmsForNumber } from './data.js';
 
-const TYPE_CONFIG = {
-  base:      { icon: '🔵', label: 'Base',      cls: 'type-base' },
-  hueco:     { icon: '🟡', label: 'Hueco',     cls: 'type-hueco' },
-  extension: { icon: '🟢', label: 'Extensión', cls: 'type-extension' }
-};
-
 const COLOR_LABELS = { red: 'Rojo', black: 'Negro', green: 'Verde' };
 
 export class Sidebar {
-  constructor(container, onClear, onAlgoClick) {
+  constructor(container, onClear, onAlgoClick, onDelete) {
     this.container = container;
     this.onClear = onClear;
     this.onAlgoClick = onAlgoClick;
+    this.onDelete = onDelete;
     this.renderShell();
     this.bindEvents();
   }
@@ -25,9 +20,12 @@ export class Sidebar {
           <p class="selected-count">0 números seleccionados</p>
         </div>
         <div class="legend">
-          <span class="legend-item"><span class="legend-dot base"></span>Base</span>
-          <span class="legend-item"><span class="legend-dot hueco"></span>Hueco</span>
-          <span class="legend-item"><span class="legend-dot extension"></span>Extensión</span>
+          <span class="legend-title">#0-#9: Algoritmos</span>
+          <div class="legend-dots">
+            <span class="legend-item"><span class="legend-dot base"></span>B (Base)</span>
+            <span class="legend-item"><span class="legend-dot hueco"></span>H (Hueco)</span>
+            <span class="legend-item"><span class="legend-dot extension"></span>E (Extensión)</span>
+          </div>
         </div>
       </div>
       <div class="sidebar-content" id="sidebar-content">
@@ -41,11 +39,31 @@ export class Sidebar {
 
   bindEvents() {
     this.container.addEventListener('click', (e) => {
-      const algoRow = e.target.closest('.algo-row');
-      if (algoRow) {
-        const algoId = parseInt(algoRow.dataset.id);
+      // Clic en cabecera de algoritmo
+      const thAlgo = e.target.closest('.th-algo');
+      if (thAlgo) {
+        const algoId = parseInt(thAlgo.dataset.algoId);
         if (!isNaN(algoId) && this.onAlgoClick) {
           this.onAlgoClick(algoId);
+        }
+      }
+
+      // Clic en celda marcada
+      const matchedCell = e.target.closest('.trend-cell.matched');
+      if (matchedCell) {
+        const cellIndex = Array.from(matchedCell.parentNode.children).indexOf(matchedCell);
+        const algoId = cellIndex - 4; // Primeros 4 son: N°, N, Color, Vecinos
+        if (algoId >= 0 && algoId <= 9 && this.onAlgoClick) {
+          this.onAlgoClick(algoId);
+        }
+      }
+
+      // Clic en botón de borrar tirada individual
+      const deleteBtn = e.target.closest('.delete-spin-btn');
+      if (deleteBtn) {
+        const index = parseInt(deleteBtn.dataset.index);
+        if (!isNaN(index) && this.onDelete) {
+          this.onDelete(index);
         }
       }
     });
@@ -58,7 +76,7 @@ export class Sidebar {
 
     countEl.textContent = `${n} número${n !== 1 ? 's' : ''} seleccionado${n !== 1 ? 's' : ''}`;
 
-    // Clear button management
+    // Botón Limpiar
     let clearBtn = this.container.querySelector('.clear-btn');
     if (n > 0 && !clearBtn) {
       clearBtn = document.createElement('button');
@@ -79,46 +97,92 @@ export class Sidebar {
       return;
     }
 
-    content.innerHTML = numbers.map((num, i) => this.buildCard(num, i)).join('');
-  }
+    const rowsHtml = numbers.map((num, i) => {
+      const color = getNumberColor(num);
+      const neighbors = getNeighbors(num, 1);
+      const algos = findAlgorithmsForNumber(num);
 
-  buildCard(num, idx) {
-    const color = getNumberColor(num);
-    const neighbors = getNeighbors(num, 1);
-    const algos = findAlgorithmsForNumber(num);
-    const leftDisp = [...neighbors.left].reverse();
+      // Diamantes estocásticos desalineados
+      const isRed = color === 'red';
+      const isBlack = color === 'black';
+      const rCell = isRed ? `<span class="trend-diamond red">◆</span>` : '';
+      const nCell = isBlack ? `<span class="trend-diamond black">◆</span>` : '';
 
-    return `
-      <div class="number-card" style="animation-delay:${idx * 0.06}s">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="num-badge ${color}">${num}</span>
-            <span class="color-tag ${color}">${COLOR_LABELS[color]}</span>
-          </div>
-          <div class="neighbors-row">
-            ${leftDisp.map(n => `<span class="nb ${getNumberColor(n)}">${n}</span>`).join('')}
-            <span class="nb current ${color}">${num}</span>
-            ${neighbors.right.map(n => `<span class="nb ${getNumberColor(n)}">${n}</span>`).join('')}
-          </div>
-          <span class="algo-count">${algos.length}<small>/10</small></span>
-        </div>
+      // Vecinos sin color (texto plano)
+      const leftNeighbor = neighbors.left[0];
+      const rightNeighbor = neighbors.right[0];
+      const neighborsText = `${leftNeighbor} | ${rightNeighbor}`;
 
-        <div class="card-section">
-          <h4>📋 Algoritmos</h4>
-          ${algos.length > 0 ? `
-            <div class="algo-list">
-              ${algos.map(a => {
-                const t = TYPE_CONFIG[a.type];
-                return `
-                  <div class="algo-row ${t.cls}" data-id="${a.id}">
-                    <span class="algo-icon">${t.icon}</span>
-                    <span class="algo-name">${a.name}</span>
-                    <span class="algo-type-label">${t.label}</span>
-                  </div>`;
-              }).join('')}
-            </div>
-          ` : '<p class="no-match">No aparece en ningún algoritmo</p>'}
-        </div>
-      </div>`;
+      const algoCells = Array.from({ length: 10 }, (_, algoId) => {
+        const match = algos.find(a => a.id === algoId);
+        if (!match) return `<td class="trend-cell empty">-</td>`;
+        
+        let letter = '';
+        let cellCls = '';
+        if (match.type === 'base') {
+          letter = 'B';
+          cellCls = 'base';
+        } else if (match.type === 'hueco') {
+          letter = 'H';
+          cellCls = 'hueco';
+        } else if (match.type === 'extension') {
+          letter = 'E';
+          cellCls = 'extension';
+        }
+        return `<td class="trend-cell matched ${cellCls}" title="${match.name}: ${match.type.toUpperCase()}">${letter}</td>`;
+      }).join('');
+
+      return `
+        <tr class="trend-row" data-number="${num}">
+          <td class="trend-cell num-col">
+            <span class="trend-num-badge ${color}">${num}</span>
+          </td>
+          <td class="trend-cell r-col">${rCell}</td>
+          <td class="trend-cell n-col">${nCell}</td>
+          <td class="trend-cell neighbors-col">
+            <span class="trend-neighbors-text">${neighborsText}</span>
+          </td>
+          ${algoCells}
+          <td class="trend-cell action-col">
+            <button class="delete-spin-btn" data-index="${i}" title="Borrar tirada">✕</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    content.innerHTML = `
+      <div class="trend-table-wrapper">
+        <table class="trend-table">
+          <thead>
+            <tr>
+              <th class="th-num">N.o</th>
+              <th class="th-color-r">R</th>
+              <th class="th-color-n">N</th>
+              <th class="th-neighbors">Vecinos</th>
+              <th class="th-algo" data-algo-id="0">#0</th>
+              <th class="th-algo" data-algo-id="1">#1</th>
+              <th class="th-algo" data-algo-id="2">#2</th>
+              <th class="th-algo" data-algo-id="3">#3</th>
+              <th class="th-algo" data-algo-id="4">#4</th>
+              <th class="th-algo" data-algo-id="5">#5</th>
+              <th class="th-algo" data-algo-id="6">#6</th>
+              <th class="th-algo" data-algo-id="7">#7</th>
+              <th class="th-algo" data-algo-id="8">#8</th>
+              <th class="th-algo" data-algo-id="9">#9</th>
+              <th class="th-action"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    // Desplazar automáticamente la tabla de tendencias al final para ver la última tirada
+    const wrapper = content.querySelector('.trend-table-wrapper');
+    if (wrapper) {
+      wrapper.scrollTop = wrapper.scrollHeight;
+    }
   }
 }

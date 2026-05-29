@@ -4,7 +4,7 @@ export class RouletteTable {
   constructor(container, onSelectionChange) {
     this.container = container;
     this.onSelectionChange = onSelectionChange;
-    this.selected = new Set();
+    this.selected = [];
     this.render();
   }
 
@@ -89,20 +89,19 @@ export class RouletteTable {
   }
 
   toggleNumber(num, cell) {
-    if (this.selected.has(num)) {
-      this.selected.delete(num);
-      cell.classList.remove('selected');
-    } else {
-      this.selected.add(num);
-      cell.classList.add('selected');
-    }
+    this.selected.push(num);
     this.onSelectionChange([...this.selected]);
   }
 
   clearSelection() {
-    this.selected.clear();
-    this.container.querySelectorAll('.table-cell.selected')
-      .forEach(c => c.classList.remove('selected'));
+    this.selected = [];
     this.onSelectionChange([]);
+  }
+
+  deleteIndex(index) {
+    if (index >= 0 && index < this.selected.length) {
+      this.selected.splice(index, 1);
+      this.onSelectionChange([...this.selected]);
+    }
   }
 }
